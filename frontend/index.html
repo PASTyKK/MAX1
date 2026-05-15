@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
-    <title>Мессенджер MAX – Универсал</title>
+    <title>Мессенджер MAX 2.0</title>
     <style>
         * {
             margin: 0;
@@ -11,96 +11,106 @@
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
+
         body {
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #e5e7eb;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #0a0a0a;
             height: 100vh;
             overflow: hidden;
         }
+
         .app {
             display: flex;
             height: 100%;
-            background: #f0f2f5;
+            background: #e9ecef;
         }
-        /* Левая панель (список чатов) */
+
+        /* Панель чатов */
         .chats-panel {
-            width: 360px;
-            background: white;
-            border-right: 1px solid #e9ecef;
+            width: 100%;
+            max-width: 400px;
+            background: #ffffff;
+            border-right: 1px solid #dee2e6;
             display: flex;
             flex-direction: column;
-            flex-shrink: 0;
+            z-index: 10;
         }
-        /* Правая панель (чат) */
-        .chat-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: #efeae2;
-            background-image: radial-gradient(circle at 10% 20%, rgba(0,0,0,0.02) 2%, transparent 2%);
-            background-size: 20px 20px;
-        }
-        /* Шапки */
-        .chats-header, .chat-header {
+
+        .chats-header {
             background: #075e54;
             color: white;
             padding: 12px 16px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            gap: 8px;
+            gap: 16px;
+            flex-wrap: wrap;
         }
-        .chats-header h1, .chat-header h2 {
-            margin: 0;
-            font-size: 1.3rem;
+
+        .chats-header h1 {
+            font-size: 1.2rem;
             font-weight: 500;
+            margin: 0;
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
+
         .header-buttons {
             display: flex;
-            gap: 6px;
+            gap: 8px;
             align-items: center;
         }
-        .header-buttons button, .logout-btn {
-            background: #128C7E;
+
+        .friends-btn, .create-group-btn {
+            background: rgba(255,255,255,0.15);
             border: none;
             color: white;
+            font-size: 0.85rem;
             padding: 6px 12px;
-            border-radius: 24px;
+            border-radius: 30px;
             cursor: pointer;
-            font-size: 0.85rem;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
+            transition: all 0.2s ease;
+            font-weight: 500;
         }
-        .logout-btn { background: #ef4444 !important; }
-        .current-user {
-            font-size: 0.85rem;
-            background: #0a4d44;
-            padding: 4px 12px;
-            border-radius: 20px;
-            margin-left: 8px;
-            white-space: nowrap;
+
+        .friends-btn:hover, .create-group-btn:hover {
+            background: rgba(255,255,255,0.25);
         }
+
+        .logout-btn {
+            background: #075e54 !important;
+            border: 1px solid #dc3545 !important;
+            color: white !important;
+            font-weight: bold !important;
+            padding: 5px 14px !important;
+            border-radius: 40px !important;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #0b6b5e !important;
+        }
+
         .search-bar {
             padding: 8px 12px;
-            background: #f6f6f6;
-            border-bottom: 1px solid #ddd;
+            background: #f8f9fa;
         }
+
         .search-bar input {
             width: 100%;
-            padding: 10px;
+            padding: 8px 12px;
             border: none;
-            border-radius: 24px;
+            border-radius: 20px;
             background: white;
             font-size: 0.9rem;
+            border: 1px solid #dee2e6;
         }
+
         .chats-list {
             flex: 1;
             overflow-y: auto;
         }
+
         .chat-item {
             display: flex;
             align-items: center;
@@ -110,13 +120,16 @@
             cursor: pointer;
             transition: background 0.1s;
         }
-        .chat-item:active { background: #f5f5f5; }
-        .chat-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
+
+        .chat-item:hover {
+            background: #f8f9fa;
         }
+
+        .chat-item.active {
+            background: #e2f0e6;
+            border-left: 4px solid #075e54;
+        }
+
         .chat-avatar {
             width: 48px;
             height: 48px;
@@ -128,18 +141,84 @@
             color: white;
             font-weight: bold;
             font-size: 1.2rem;
+            margin-right: 12px;
+            flex-shrink: 0;
         }
-        .chat-name { font-weight: 500; }
+
+        .chat-info {
+            flex: 1;
+        }
+
+        .chat-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .chat-preview {
+            display: none;
+        }
+
         .delete-chat-btn {
             background: none;
             border: none;
-            font-size: 1.2rem;
+            font-size: 1rem;
             cursor: pointer;
-            color: #9ca3af;
-            padding: 6px;
+            color: #adb5bd;
+            padding: 4px;
             border-radius: 50%;
         }
-        .delete-chat-btn:active { background: #fee2e2; color: #dc2626; }
+
+        .delete-chat-btn:active {
+            background: #f8d7da;
+            color: #dc3545;
+        }
+
+        .chat-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f4f5f7;
+        }
+
+        .chat-header {
+            background: #075e54;
+            color: white;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.6rem;
+            cursor: pointer;
+            display: none;
+            line-height: 1;
+        }
+
+        .chat-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .members-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
         .messages-container {
             flex: 1;
             overflow-y: auto;
@@ -148,36 +227,42 @@
             flex-direction: column;
             gap: 8px;
         }
+
         .message {
-            max-width: 80%;
+            max-width: 70%;
             padding: 8px 12px;
             border-radius: 18px;
             word-wrap: break-word;
             font-size: 0.95rem;
         }
+
         .message-own {
             background: #dcf8c5;
             align-self: flex-end;
             border-bottom-right-radius: 4px;
         }
+
         .message-other {
             background: white;
             align-self: flex-start;
             border-bottom-left-radius: 4px;
         }
+
         .message-sender {
             font-size: 0.7rem;
             font-weight: bold;
             margin-bottom: 4px;
             color: #075e54;
         }
+
         .input-area {
-            background: #f0f2f5;
+            background: #f8f9fa;
             padding: 12px;
             display: flex;
             gap: 8px;
-            border-top: 1px solid #ddd;
+            border-top: 1px solid #dee2e6;
         }
+
         .input-area input {
             flex: 1;
             padding: 12px;
@@ -186,6 +271,7 @@
             background: white;
             font-size: 1rem;
         }
+
         .input-area button {
             background: #075e54;
             border: none;
@@ -195,68 +281,181 @@
             cursor: pointer;
             font-size: 1.2rem;
         }
-        .back-button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.6rem;
-            cursor: pointer;
-            margin-right: 10px;
-            line-height: 1;
-            display: none;
-        }
-        /* Модалки */
+
+        /* Модальные окна */
         .modal {
             display: none;
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: rgba(0,0,0,0.5);
             justify-content: center;
             align-items: center;
             z-index: 1000;
         }
+
         .modal-content {
             background: white;
             width: 400px;
             max-width: 90%;
             border-radius: 24px;
-            padding: 20px;
+            padding: 24px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.2);
         }
-        .modal-content h3 { margin-bottom: 16px; }
+
+        .modal-content h3 {
+            margin-bottom: 16px;
+            color: #075e54;
+            font-size: 1.3rem;
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 8px;
+        }
+
+        .modal-tabs button {
+            background: none;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 30px;
+            transition: all 0.2s;
+            color: #495057;
+        }
+
+        .modal-tabs button.active {
+            background: #075e54;
+            color: white;
+        }
+
         .modal-content input {
             width: 100%;
             padding: 10px;
             margin-bottom: 12px;
-            border: 1px solid #ccc;
-            border-radius: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 24px;
+            font-size: 0.9rem;
         }
+
         .user-list {
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
-            margin-bottom: 12px;
-            border: 1px solid #eee;
-            border-radius: 12px;
+            margin-bottom: 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 16px;
             padding: 8px;
+            background: #f8f9fa;
         }
-        .user-list label {
+
+        .user-list-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
-            padding: 4px;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e9ecef;
         }
-        .modal button {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 12px;
-            margin-top: 8px;
+
+        .user-list-item button {
             background: #075e54;
             color: white;
+            border: none;
+            padding: 4px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .search-actions {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .search-actions button {
+            flex: 1;
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 24px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+
+        .search-actions button:first-child {
+            background: #075e54;
+        }
+
+        .group-modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .group-modal-buttons button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .group-modal-buttons button:first-child {
+            background: #28a745;
+            color: white;
+        }
+
+        .group-modal-buttons button:first-child:hover {
+            background: #218838;
+        }
+
+        .group-modal-buttons button:last-child {
+            background: #6c757d;
+            color: white;
+        }
+
+        .group-user-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            border: 1px solid #dee2e6;
+            border-radius: 16px;
+            padding: 8px;
+            background: #f8f9fa;
+        }
+
+        .group-user-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .group-user-item input {
+            width: 18px;
+            height: 18px;
+            margin: 0;
             cursor: pointer;
         }
-        .modal button.close { background: #9ca3af; }
+
+        .group-user-item label {
+            flex: 1;
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
         .toast {
             position: fixed;
             bottom: 20px;
@@ -272,7 +471,7 @@
             max-width: 400px;
             margin: 0 auto;
         }
-        /* Адаптив для телефона: левая панель изначально скрыта, показывается кнопка назад */
+
         @media (max-width: 768px) {
             .chats-panel {
                 position: fixed;
@@ -282,7 +481,7 @@
                 height: 100%;
                 z-index: 20;
                 background: white;
-                display: none;
+                display: flex;
             }
             .chat-panel {
                 width: 100%;
@@ -290,69 +489,117 @@
             .back-button {
                 display: block;
             }
-            .current-user {
-                display: none;
+            .chats-header h1 {
+                font-size: 1rem;
+            }
+            .friends-btn, .create-group-btn {
+                font-size: 0.8rem;
+                padding: 4px 10px;
+            }
+            .logout-btn {
+                padding: 4px 10px !important;
+                font-size: 0.75rem;
+            }
+            .members-btn {
+                font-size: 0.7rem;
+                padding: 3px 8px;
             }
         }
-        /* На ПК левая панель всегда видна, кнопка назад скрыта */
+
         @media (min-width: 769px) {
-            .chats-panel {
-                display: flex !important;
-            }
             .back-button {
                 display: none !important;
+            }
+            .chats-panel {
+                display: flex !important;
             }
         }
     </style>
 </head>
 <body>
 <div class="app">
-    <!-- Панель списка чатов -->
     <div id="chatsPanel" class="chats-panel">
         <div class="chats-header">
-            <h1>📱 Мессенджер</h1>
+            <h1>💬 Мессенджер MAX 2.0</h1>
             <div class="header-buttons">
-                <button id="friendsBtn">👥 Друзья</button>
-                <button id="createGroupBtn">➕ Группа</button>
-                <button id="logoutBtn" class="logout-btn">🚪</button>
+                <button id="friendsBtn" class="friends-btn">👥 Друзья</button>
+                <button id="createGroupBtn" class="create-group-btn">Создать группу</button>
+                <button id="logoutBtn" class="logout-btn">Выйти из аккаунта</button>
             </div>
         </div>
         <div class="search-bar">
-            <input type="text" id="searchChatsInput" placeholder="🔍 Поиск чатов...">
+            <input type="text" id="searchChatsInput" placeholder="Поиск чатов...">
         </div>
         <div id="chatsList" class="chats-list"><div style="text-align:center; padding:24px;">Загрузка...</div></div>
     </div>
-
-    <!-- Панель активного чата -->
     <div id="chatPanel" class="chat-panel">
         <div class="chat-header">
             <button id="backButton" class="back-button">←</button>
-            <h2 id="chatTitle">Выберите чат</h2>
-            <div id="currentUserDisplay" class="current-user"></div>
+            <span id="chatTitle" class="chat-title">Выберите чат</span>
+            <button id="membersBtn" class="members-btn" style="display: none;">👥 Участники</button>
+            <div id="currentUserDisplay" style="font-size:0.8rem; background:#0a4d44; padding:4px 10px; border-radius:20px;"></div>
         </div>
         <div id="messagesContainer" class="messages-container"><div style="text-align:center;">Выберите чат</div></div>
-        <div id="inputArea" class="input-area">
-            <input type="text" id="messageInput" placeholder="Сообщение" disabled>
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="Введите сообщение" disabled>
             <button id="sendBtn">📤</button>
         </div>
     </div>
 </div>
 
-<!-- Модалки -->
-<div id="friendsModal" class="modal"><div class="modal-content"><h3>👥 Друзья и заявки</h3><div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;"><button id="showFriendsTab" style="width:auto;">Друзья</button><button id="showRequestsTab" style="width:auto;">Заявки</button><button id="showSearchTab" style="width:auto;">Поиск</button></div><div id="friendsTabContent"><div id="friendsListContainer"></div></div><div id="requestsTabContent" style="display:none;"><div id="requestsListContainer"></div></div><div id="searchTabContent" style="display:none;"><input type="text" id="searchUserInput" placeholder="Логин"><button id="doSearchBtn">🔍 Найти</button><div id="searchResultsContainer"></div></div><button id="closeFriendsModalBtn" class="close">Закрыть</button></div></div>
+<!-- Модальные окна -->
+<div id="friendsModal" class="modal">
+    <div class="modal-content">
+        <h3>👥 Друзья и заявки</h3>
+        <div class="modal-tabs">
+            <button id="showFriendsTab" class="active">Друзья</button>
+            <button id="showRequestsTab">Заявки</button>
+            <button id="showSearchTab">Поиск</button>
+        </div>
+        <div id="friendsTabContent"><div id="friendsListContainer" class="user-list"></div></div>
+        <div id="requestsTabContent" style="display:none;"><div id="requestsListContainer" class="user-list"></div></div>
+        <div id="searchTabContent" style="display:none;">
+            <input type="text" id="searchUserInput" placeholder="Поиск пользователей...">
+            <div class="search-actions">
+                <button id="doSearchBtn">Найти</button>
+                <button id="clearSearchBtn">Очистить</button>
+            </div>
+            <div id="searchResultsContainer" class="user-list"></div>
+        </div>
+        <button id="closeFriendsModalBtn" style="background:#dc3545; color:white; width:100%; padding:10px; border:none; border-radius:24px; margin-top:12px; cursor:pointer;">Закрыть</button>
+    </div>
+</div>
 
-<div id="groupModal" class="modal"><div class="modal-content"><h3>➕ Новая группа</h3><input type="text" id="groupName" placeholder="Название группы"><div class="user-list" id="friendsForGroupList"></div><button id="confirmGroupBtn">Создать</button><button id="closeGroupModalBtn" class="close">Отмена</button></div></div>
+<div id="groupModal" class="modal">
+    <div class="modal-content">
+        <h3>➕ Создать группу</h3>
+        <input type="text" id="groupName" placeholder="Название группы">
+        <div class="group-user-list" id="friendsForGroupList"></div>
+        <div class="group-modal-buttons">
+            <button id="confirmGroupBtn">Создать</button>
+            <button id="closeGroupModalBtn">Отмена</button>
+        </div>
+    </div>
+</div>
+
+<div id="membersModal" class="modal">
+    <div class="modal-content">
+        <h3>👥 Участники группы</h3>
+        <div id="membersList" class="user-list"></div>
+        <button id="closeMembersModalBtn" style="background:#075e54; color:white; width:100%; padding:10px; border:none; border-radius:24px; margin-top:12px; cursor:pointer;">Закрыть</button>
+    </div>
+</div>
 
 <script>
-    // ========== АВТООПРЕДЕЛЕНИЕ API ==========
+    // ========== НАСТРОЙКИ ==========
     const currentHost = window.location.hostname;
     let USER_API, CHAT_API;
     if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
-        USER_API = "http://localhost:8001";
-        CHAT_API = "http://localhost:8000";
+        USER_API = "https://localhost:8001";
+        CHAT_API = "https://localhost:8000";
     } else {
-        USER_API = `http://${currentHost}:8001`;
-        CHAT_API = `http://${currentHost}:8000`;
+        USER_API = `https://${currentHost}:8001`;
+        CHAT_API = `https://${currentHost}:8000`;
     }
     console.log(`API: ${USER_API}, ${CHAT_API}`);
 
@@ -362,6 +609,7 @@
     let currentChatId = null;
     let chats = [];
     let allFriends = [];
+    let chatMembersCache = new Map();
     let toastQueue = [];
     let isShowingToast = false;
 
@@ -395,9 +643,19 @@
         return await response.json();
     }
 
-    // Авторизация
+    // ---------- АВТОРИЗАЦИЯ ----------
     async function showAuthScreen() {
-        const authHtml = `<div style="display:flex; justify-content:center; align-items:center; height:100vh; background:white;"><div style="width:85%; max-width:320px; text-align:center;"><h2>🔐 Мессенджер MAX</h2><input id="authUsername" placeholder="Логин" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid #ddd;"><input id="authPassword" type="password" placeholder="Пароль" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid #ddd;"><button id="authLoginBtn" style="width:100%; padding:12px; background:#075e54; color:white; border:none; border-radius:24px;">Вход</button><button id="authRegisterBtn" style="width:100%; padding:12px; background:#25d366; color:#075e54; border:none; border-radius:24px; margin-top:8px;">Регистрация</button></div></div>`;
+        const authHtml = `
+            <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#075e54;">
+                <div style="width:85%; max-width:320px; text-align:center; background:white; border-radius:24px; padding:32px;">
+                    <h2 style="color:#075e54;">🔐 Мессенджер MAX 2.0</h2>
+                    <input id="authUsername" placeholder="Логин" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid #ddd;">
+                    <input id="authPassword" type="password" placeholder="Пароль" style="width:100%; padding:12px; margin:8px 0; border-radius:24px; border:1px solid #ddd;">
+                    <button id="authLoginBtn" style="width:100%; padding:12px; background:#075e54; color:white; border:none; border-radius:24px;">Вход</button>
+                    <button id="authRegisterBtn" style="width:100%; padding:12px; background:#25d366; color:#075e54; border:none; border-radius:24px; margin-top:8px;">Регистрация</button>
+                </div>
+            </div>
+        `;
         document.body.innerHTML = authHtml;
         document.getElementById('authLoginBtn').onclick = async () => {
             const username = document.getElementById('authUsername').value.trim();
@@ -422,7 +680,6 @@
             } catch (err) { showToast(`Ошибка: ${err.message}`, true); }
         };
     }
-
     if (!accessToken) { showAuthScreen(); } else { initApp(); }
 
     async function initApp() {
@@ -433,41 +690,71 @@
             document.getElementById('currentUserDisplay').textContent = `👤 ${currentUsername}`;
             await loadFriends();
             await loadChats();
-
-            // Настройка кнопки "Назад" (для телефона)
-            const backBtn = document.getElementById('backButton');
-            backBtn.onclick = () => {
-                if (window.innerWidth <= 768) {
-                    document.getElementById('chatsPanel').style.display = 'flex';
-                    currentChatId = null;
-                    document.getElementById('messageInput').disabled = true;
-                    document.getElementById('chatTitle').innerText = 'Выберите чат';
-                    document.getElementById('messagesContainer').innerHTML = '<div style="text-align:center;">Выберите чат слева</div>';
-                }
+            document.getElementById('backButton').onclick = () => {
+                document.getElementById('chatsPanel').style.display = 'flex';
+                currentChatId = null;
+                document.getElementById('messageInput').disabled = true;
+                document.getElementById('chatTitle').innerText = 'Выберите чат';
+                document.getElementById('messagesContainer').innerHTML = '<div style="text-align:center;">Выберите чат</div>';
+                document.getElementById('membersBtn').style.display = 'none';
             };
-
-            // Если ПК – левая панель видна всегда
-            if (window.innerWidth >= 769) {
-                document.getElementById('chatsPanel').style.display = 'flex';
-            } else {
-                // На телефоне изначально показываем панель чатов
-                document.getElementById('chatsPanel').style.display = 'flex';
-            }
-        } catch(err) {
-            localStorage.removeItem('chat_token');
-            location.reload();
-        }
+            if (window.innerWidth <= 768) document.getElementById('chatsPanel').style.display = 'flex';
+            else document.getElementById('chatsPanel').style.display = 'flex';
+        } catch(err) { localStorage.removeItem('chat_token'); location.reload(); }
     }
 
-    // Друзья (сокращённо, но рабоче)
-    async function loadFriends() { try { const res = await fetch(`${USER_API}/friends`, { headers: { 'Authorization': `Bearer ${accessToken}` } }); if (res.ok) allFriends = await res.json(); else allFriends = []; return allFriends; } catch(e) { return []; } }
-    async function deleteFriend(friendId) { try { await fetch(`${USER_API}/friends/${friendId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${accessToken}` } }); showToast('Друг удалён'); await loadFriends(); await loadChats(); refreshFriendsModal(); } catch(e) { showToast('Ошибка удаления', true); } }
-    async function searchUsers(query) { if (!query.trim()) return []; try { const res = await fetch(`${USER_API}/users/search?q=${encodeURIComponent(query)}`, { headers: { 'Authorization': `Bearer ${accessToken}` } }); if (!res.ok) return []; return await res.json(); } catch(e) { return []; } }
-    async function loadIncomingRequests() { try { const res = await fetch(`${USER_API}/friends/requests/incoming`, { headers: { 'Authorization': `Bearer ${accessToken}` } }); if (!res.ok) return []; return await res.json(); } catch(e) { return []; } }
-    async function acceptRequest(requestId) { try { await fetch(`${USER_API}/friends/accept/${requestId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${accessToken}` } }); showToast('Заявка принята'); await loadFriends(); await loadChats(); refreshFriendsModal(); } catch(e) { showToast('Ошибка', true); } }
-    async function sendFriendRequest(userId) { try { await fetch(`${USER_API}/friends/request/${userId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${accessToken}` } }); showToast('Заявка отправлена'); } catch(e) { showToast('Ошибка', true); } }
+    // ---------- ДРУЗЬЯ ----------
+    async function loadFriends() {
+        try {
+            const res = await fetch(`${USER_API}/friends`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+            if (res.ok) allFriends = await res.json();
+            else allFriends = [];
+            return allFriends;
+        } catch(e) { return []; }
+    }
+    async function deleteFriend(friendId) {
+        try {
+            await fetch(`${USER_API}/friends/${friendId}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${accessToken}` } });
+            showToast('Друг удалён');
+            await loadFriends();
+            await loadChats();
+            refreshFriendsModal();
+        } catch(e) { showToast('Ошибка удаления', true); }
+    }
+    async function searchUsers(query) {
+        if (!query.trim()) return [];
+        try {
+            const res = await fetch(`${USER_API}/users/search?q=${encodeURIComponent(query)}`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+            if (!res.ok) return [];
+            const users = await res.json();
+            const friendIds = allFriends.map(f => f.id);
+            return users.filter(u => !friendIds.includes(u.id));
+        } catch(e) { return []; }
+    }
+    async function loadIncomingRequests() {
+        try {
+            const res = await fetch(`${USER_API}/friends/requests/incoming`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+            if (!res.ok) return [];
+            return await res.json();
+        } catch(e) { return []; }
+    }
+    async function acceptRequest(requestId) {
+        try {
+            await fetch(`${USER_API}/friends/accept/${requestId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${accessToken}` } });
+            showToast('Заявка принята');
+            await loadFriends();
+            await loadChats();
+            refreshFriendsModal();
+        } catch(e) { showToast('Ошибка', true); }
+    }
+    async function sendFriendRequest(userId) {
+        try {
+            await fetch(`${USER_API}/friends/request/${userId}`, { method: 'POST', headers: { 'Authorization': `Bearer ${accessToken}` } });
+            showToast('Заявка отправлена');
+        } catch(e) { showToast('Ошибка', true); }
+    }
 
-    // Чаты
+    // ---------- ЧАТЫ ----------
     async function deleteChat(chatId) {
         try {
             await apiRequest(`/chats/${chatId}`, 'DELETE');
@@ -476,17 +763,82 @@
                 currentChatId = null;
                 document.getElementById('messageInput').disabled = true;
                 document.getElementById('chatTitle').innerText = 'Выберите чат';
-                document.getElementById('messagesContainer').innerHTML = '<div style="text-align:center;">Выберите чат слева</div>';
+                document.getElementById('messagesContainer').innerHTML = '<div style="text-align:center;">Выберите чат</div>';
+                document.getElementById('membersBtn').style.display = 'none';
                 if (window.innerWidth <= 768) document.getElementById('chatsPanel').style.display = 'flex';
             }
             await loadChats();
         } catch(e) { showToast(`Ошибка: ${e.message}`, true); }
     }
 
+    async function fetchChatMembers(chatId) {
+        if (chatMembersCache.has(chatId)) return chatMembersCache.get(chatId);
+        try {
+            const res = await fetch(`${CHAT_API}/chats/${chatId}/members`, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            if (!res.ok) throw new Error('Failed to fetch members');
+            let members = await res.json();
+            if (members.length > 0 && !members[0].username) {
+                const userIds = members.map(m => m.id);
+                const allUsersRes = await fetch(`${USER_API}/users`, {
+                    headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                if (allUsersRes.ok) {
+                    const allUsers = await allUsersRes.json();
+                    members = members.map(m => ({
+                        id: m.id,
+                        username: allUsers.find(u => u.id === m.id)?.username || `User ${m.id}`
+                    }));
+                } else {
+                    members = members.map(m => ({ id: m.id, username: `User ${m.id}` }));
+                }
+            }
+            chatMembersCache.set(chatId, members);
+            return members;
+        } catch(e) {
+            console.warn(e);
+            return null;
+        }
+    }
+
+    // Поиск существующего личного чата по составу участников
+    async function findExistingPrivateChat(friendId) {
+        for (let chat of chats) {
+            if (chatMembersCache.has(chat.id)) {
+                const members = chatMembersCache.get(chat.id);
+                if (members.length === 2 && members.some(m => m.id === currentUserId) && members.some(m => m.id === friendId)) {
+                    return chat;
+                }
+                continue;
+            }
+            try {
+                const members = await fetchChatMembers(chat.id);
+                if (members && members.length === 2 && members.some(m => m.id === currentUserId) && members.some(m => m.id === friendId)) {
+                    return chat;
+                }
+            } catch(e) {
+                if (chat.name.includes(`(id:${friendId})`)) return chat;
+            }
+        }
+        return null;
+    }
+
+    async function createPrivateChat(friendId, friendUsername) {
+        const existingChat = await findExistingPrivateChat(friendId);
+        if (existingChat) {
+            showToast(`Чат с ${friendUsername} уже существует`, false);
+            return existingChat;
+        }
+        const chatName = `Личный чат с ${friendUsername}`;
+        return await apiRequest('/chats/', 'POST', { name: chatName, member_ids: [currentUserId, friendId] });
+    }
+
     async function createGroupChat(groupName, memberIds) {
         if (!groupName.trim()) throw new Error('Введите название');
         if (memberIds.length < 1) throw new Error('Выберите хотя бы одного друга');
         const allMemberIds = [...new Set([...memberIds, currentUserId])];
+        console.log("Sending create group request:", { name: groupName, member_ids: allMemberIds });
         return await apiRequest('/chats/', 'POST', { name: groupName, member_ids: allMemberIds });
     }
 
@@ -495,7 +847,7 @@
             chats = await apiRequest('/chats/', 'GET');
             renderChatList();
             if (chats.length > 0 && !currentChatId) selectChat(chats[0].id);
-            else if (chats.length === 0) document.getElementById('messagesContainer').innerHTML = '<div style="text-align:center;">Нет чатов</div>';
+            else if (chats.length === 0) document.getElementById('messagesContainer').innerHTML = '<div style="text-align:center;">Нет чатов. Создайте группу или добавьте друзей.</div>';
         } catch(err) { showToast('Ошибка загрузки чатов', true); }
     }
 
@@ -506,9 +858,10 @@
         chats.forEach(chat => {
             const div = document.createElement('div');
             div.className = 'chat-item';
+            if (currentChatId === chat.id) div.classList.add('active');
             div.innerHTML = `
+                <div class="chat-avatar">${escapeHtml(chat.name[0].toUpperCase())}</div>
                 <div class="chat-info">
-                    <div class="chat-avatar">${escapeHtml(chat.name[0].toUpperCase())}</div>
                     <div class="chat-name">${escapeHtml(chat.name)}</div>
                 </div>
                 <button class="delete-chat-btn" data-id="${chat.id}" title="Удалить">🗑️</button>
@@ -526,10 +879,14 @@
         const selectedChat = chats.find(c => c.id === chatId);
         document.getElementById('chatTitle').innerText = selectedChat ? selectedChat.name : 'Чат';
         document.getElementById('messageInput').disabled = false;
-        await loadMessages(chatId);
-        if (window.innerWidth <= 768) {
-            document.getElementById('chatsPanel').style.display = 'none';
+        const members = await fetchChatMembers(chatId);
+        if (members && members.length > 2) {
+            document.getElementById('membersBtn').style.display = 'inline-flex';
+        } else {
+            document.getElementById('membersBtn').style.display = 'none';
         }
+        await loadMessages(chatId);
+        if (window.innerWidth <= 768) document.getElementById('chatsPanel').style.display = 'none';
     }
 
     async function loadMessages(chatId) {
@@ -568,39 +925,63 @@
         } catch(err) { showToast('Ошибка отправки', true); }
     }
 
-    // Модалка друзей (сокращённая)
+    // ---------- УЧАСТНИКИ ----------
+    const membersModal = document.getElementById('membersModal');
+    const membersBtn = document.getElementById('membersBtn');
+    const closeMembersModalBtn = document.getElementById('closeMembersModalBtn');
+    membersBtn.onclick = async () => {
+        if (!currentChatId) return;
+        const members = await fetchChatMembers(currentChatId);
+        const container = document.getElementById('membersList');
+        if (!members || !members.length) {
+            container.innerHTML = '<div style="padding:20px; text-align:center;">Не удалось загрузить участников. Убедитесь, что добавлен эндпоинт GET /chats/{id}/members</div>';
+        } else {
+            container.innerHTML = '';
+            members.forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'user-list-item';
+                div.innerHTML = `<span>${escapeHtml(m.username)}</span>`;
+                container.appendChild(div);
+            });
+        }
+        membersModal.style.display = 'flex';
+    };
+    closeMembersModalBtn.onclick = () => { membersModal.style.display = 'none'; };
+
+    // ---------- МОДАЛКА ДРУЗЕЙ ----------
     const friendsModal = document.getElementById('friendsModal');
     const friendsBtn = document.getElementById('friendsBtn');
+    const createGroupBtn = document.getElementById('createGroupBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
     const closeFriendsModalBtn = document.getElementById('closeFriendsModalBtn');
     friendsBtn.onclick = () => { friendsModal.style.display = 'flex'; refreshFriendsModal(); };
     closeFriendsModalBtn.onclick = () => { friendsModal.style.display = 'none'; };
+
     async function refreshFriendsModal() {
         await loadFriends();
         const friendsContainer = document.getElementById('friendsListContainer');
-        if (!allFriends.length) friendsContainer.innerHTML = '<div>Нет друзей</div>';
+        if (!allFriends.length) friendsContainer.innerHTML = '<div style="padding:20px; text-align:center;">У вас пока нет друзей</div>';
         else {
             friendsContainer.innerHTML = '';
             allFriends.forEach(f => {
                 const div = document.createElement('div');
-                div.style.padding = '8px';
-                div.style.borderBottom = '1px solid #eee';
-                div.style.display = 'flex';
-                div.style.justifyContent = 'space-between';
-                div.style.alignItems = 'center';
-                div.innerHTML = `<span>${escapeHtml(f.username)}</span>
-                                <div><button class="startChatBtn" data-id="${f.id}" style="margin-right:8px;">💬 Написать</button>
-                                <button class="deleteFriendBtn" data-id="${f.id}" style="background:none; border:none; color:#dc2626; cursor:pointer;">🗑️</button></div>`;
+                div.className = 'user-list-item';
+                div.innerHTML = `
+                    <span>${escapeHtml(f.username)}</span>
+                    <div>
+                        <button class="startChatBtn" data-id="${f.id}" data-name="${escapeHtml(f.username)}" style="margin-right:6px;">💬</button>
+                        <button class="deleteFriendBtn" data-id="${f.id}" style="background:#dc3545;">🗑️</button>
+                    </div>
+                `;
                 friendsContainer.appendChild(div);
             });
             document.querySelectorAll('.startChatBtn').forEach(btn => {
                 btn.onclick = async (e) => {
                     const friendId = parseInt(btn.dataset.id);
-                    const friend = allFriends.find(f => f.id === friendId);
-                    if (!friend) return;
-                    const chatName = `Личный чат с ${friend.username}`;
+                    const friendName = btn.dataset.name;
                     try {
-                        const newChat = await apiRequest('/chats/', 'POST', { name: chatName, member_ids: [currentUserId, friendId] });
-                        showToast(`Чат с ${friend.username} создан`);
+                        const newChat = await createPrivateChat(friendId, friendName);
+                        showToast(`Чат с ${friendName} открыт`);
                         await loadChats();
                         selectChat(newChat.id);
                         friendsModal.style.display = 'none';
@@ -613,13 +994,16 @@
         }
         const requests = await loadIncomingRequests();
         const reqContainer = document.getElementById('requestsListContainer');
-        if (!requests.length) reqContainer.innerHTML = '<div>Нет заявок</div>';
+        if (!requests.length) reqContainer.innerHTML = '<div style="padding:20px; text-align:center;">Нет входящих заявок</div>';
         else {
             reqContainer.innerHTML = '';
             requests.forEach(req => {
                 const div = document.createElement('div');
-                div.style.padding = '8px';
-                div.innerHTML = `${escapeHtml(req.from_user.username)} хочет добавить в друзья <button class="acceptReqBtn" data-id="${req.id}">Принять</button>`;
+                div.className = 'user-list-item';
+                div.innerHTML = `
+                    <span>${escapeHtml(req.from_user.username)}</span>
+                    <button class="acceptReqBtn" data-id="${req.id}">Принять</button>
+                `;
                 reqContainer.appendChild(div);
             });
             document.querySelectorAll('.acceptReqBtn').forEach(btn => {
@@ -629,61 +1013,82 @@
         document.getElementById('searchUserInput').value = '';
         document.getElementById('searchResultsContainer').innerHTML = '';
     }
-    document.getElementById('showFriendsTab').onclick = () => {
-        document.getElementById('friendsTabContent').style.display = 'block';
-        document.getElementById('requestsTabContent').style.display = 'none';
-        document.getElementById('searchTabContent').style.display = 'none';
-        refreshFriendsModal();
-    };
-    document.getElementById('showRequestsTab').onclick = () => {
-        document.getElementById('friendsTabContent').style.display = 'none';
-        document.getElementById('requestsTabContent').style.display = 'block';
-        document.getElementById('searchTabContent').style.display = 'none';
-        refreshFriendsModal();
-    };
-    document.getElementById('showSearchTab').onclick = () => {
-        document.getElementById('friendsTabContent').style.display = 'none';
-        document.getElementById('requestsTabContent').style.display = 'none';
-        document.getElementById('searchTabContent').style.display = 'block';
-        document.getElementById('searchResultsContainer').innerHTML = '';
-    };
+
+    const showFriendsTab = document.getElementById('showFriendsTab');
+    const showRequestsTab = document.getElementById('showRequestsTab');
+    const showSearchTab = document.getElementById('showSearchTab');
+    const friendsTabContent = document.getElementById('friendsTabContent');
+    const requestsTabContent = document.getElementById('requestsTabContent');
+    const searchTabContent = document.getElementById('searchTabContent');
+
+    function setActiveTab(active) {
+        [showFriendsTab, showRequestsTab, showSearchTab].forEach(btn => btn.classList.remove('active'));
+        active.classList.add('active');
+        friendsTabContent.style.display = 'none';
+        requestsTabContent.style.display = 'none';
+        searchTabContent.style.display = 'none';
+        if (active === showFriendsTab) friendsTabContent.style.display = 'block';
+        if (active === showRequestsTab) requestsTabContent.style.display = 'block';
+        if (active === showSearchTab) searchTabContent.style.display = 'block';
+    }
+    showFriendsTab.onclick = () => { setActiveTab(showFriendsTab); refreshFriendsModal(); };
+    showRequestsTab.onclick = () => { setActiveTab(showRequestsTab); refreshFriendsModal(); };
+    showSearchTab.onclick = () => { setActiveTab(showSearchTab); };
+
     document.getElementById('doSearchBtn').onclick = async () => {
         const query = document.getElementById('searchUserInput').value;
         const results = await searchUsers(query);
         const container = document.getElementById('searchResultsContainer');
-        if (!results.length) { container.innerHTML = '<div>Ничего не найдено</div>'; return; }
+        if (!results.length) { container.innerHTML = '<div style="padding:20px; text-align:center;">Ничего не найдено</div>'; return; }
         container.innerHTML = '';
         results.forEach(u => {
             const div = document.createElement('div');
-            div.style.padding = '8px';
-            div.innerHTML = `${escapeHtml(u.username)} <button class="addFriendBtn" data-id="${u.id}">+ Добавить</button>`;
+            div.className = 'user-list-item';
+            div.innerHTML = `
+                <span>${escapeHtml(u.username)}</span>
+                <button class="addFriendBtn" data-id="${u.id}">+ Добавить</button>
+            `;
             container.appendChild(div);
         });
         document.querySelectorAll('.addFriendBtn').forEach(btn => {
             btn.onclick = () => sendFriendRequest(parseInt(btn.dataset.id));
         });
     };
+    document.getElementById('clearSearchBtn').onclick = () => {
+        document.getElementById('searchUserInput').value = '';
+        document.getElementById('searchResultsContainer').innerHTML = '';
+    };
 
-    // Группы
+    // ---------- ГРУППЫ ----------
     const groupModal = document.getElementById('groupModal');
-    const createGroupBtn = document.getElementById('createGroupBtn');
     const closeGroupModalBtn = document.getElementById('closeGroupModalBtn');
     const confirmGroupBtn = document.getElementById('confirmGroupBtn');
     createGroupBtn.onclick = async () => {
         await loadFriends();
-        if (!allFriends.length) { showToast('Нет друзей для группы', true); return; }
-        const opts = allFriends.map(f => `<label><input type="checkbox" value="${f.id}" class="groupMemberCheckbox"> ${escapeHtml(f.username)}</label>`).join('');
-        document.getElementById('friendsForGroupList').innerHTML = opts;
+        if (!allFriends.length) { showToast('Нет друзей для создания группы', true); return; }
+        const container = document.getElementById('friendsForGroupList');
+        container.innerHTML = '';
+        allFriends.forEach(f => {
+            const div = document.createElement('div');
+            div.className = 'group-user-item';
+            div.innerHTML = `
+                <input type="checkbox" value="${f.id}" id="friend_${f.id}" class="groupMemberCheckbox">
+                <label for="friend_${f.id}">${escapeHtml(f.username)}</label>
+            `;
+            container.appendChild(div);
+        });
         groupModal.style.display = 'flex';
     };
     closeGroupModalBtn.onclick = () => groupModal.style.display = 'none';
     confirmGroupBtn.onclick = async () => {
         const name = document.getElementById('groupName').value.trim();
-        if (!name) { showToast('Введите название', true); return; }
+        if (!name) { showToast('Введите название группы', true); return; }
         const selected = Array.from(document.querySelectorAll('#friendsForGroupList input:checked')).map(cb => parseInt(cb.value));
-        if (!selected.length) { showToast('Выберите друзей', true); return; }
+        console.log("Selected friends for group:", selected);
+        if (!selected.length) { showToast('Выберите хотя бы одного друга', true); return; }
         try {
             const newChat = await createGroupChat(name, selected);
+            console.log("Group created:", newChat);
             document.getElementById('groupName').value = '';
             groupModal.style.display = 'none';
             showToast(`Группа "${name}" создана`);
@@ -692,7 +1097,8 @@
         } catch(err) { showToast(`Ошибка: ${err.message}`, true); }
     };
 
-    document.getElementById('logoutBtn').onclick = () => { localStorage.removeItem('chat_token'); location.reload(); };
+    // ---------- ОБЩИЕ ----------
+    logoutBtn.onclick = () => { localStorage.removeItem('chat_token'); location.reload(); };
     document.getElementById('sendBtn').onclick = sendMessage;
     document.getElementById('messageInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
     document.getElementById('searchChatsInput').addEventListener('input', (e) => {
@@ -702,7 +1108,6 @@
             item.style.display = name.includes(q) ? 'flex' : 'none';
         });
     });
-
     function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, (m) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
 </script>
 </body>

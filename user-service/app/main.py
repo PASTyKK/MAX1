@@ -256,3 +256,14 @@ async def delete_friend(
         raise HTTPException(status_code=404, detail="Friend not found")
     await db.commit()
     return {"message": "Friend deleted"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=8001,
+        reload=True,
+        ssl_keyfile="localhost+2-key.pem",
+        ssl_certfile="localhost+2.pem"
+    )

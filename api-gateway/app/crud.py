@@ -5,12 +5,13 @@ from . import models, schemas
 async def create_chat(db: AsyncSession, chat_data: schemas.ChatCreate, owner_id: int):
     chat = models.Chat(name=chat_data.name, created_by=owner_id)
     db.add(chat)
-    await db.commit()
-    await db.refresh(chat)
-    # Добавляем участников (таблица chat_members)
-    for member_id in set(chat_data.member_ids + [owner_id]):
+    await db.flush()
+    member_ids = set(chat_data.member_ids)
+    member_ids.add(owner_id)
+    for member_id in member_ids:
         await db.execute(models.chat_members.insert().values(chat_id=chat.id, user_id=member_id))
     await db.commit()
+    await db.refresh(chat)
     return chat
 
 async def get_chats_for_user(db: AsyncSession, user_id: int):
