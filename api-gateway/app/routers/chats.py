@@ -7,7 +7,7 @@ import httpx
 
 router = APIRouter(prefix="/chats", tags=["chats"])
 
-@router.post("/", response_model=schemas.ChatOut)
+@router.post("/", response_model=schemas.ChatOut, summary="Создать чат (личный или групповой)")
 async def create_chat(
     chat: schemas.ChatCreate,
     current_user=Depends(dependencies.get_current_user),
@@ -15,8 +15,8 @@ async def create_chat(
 ):
     user_id = current_user["user_id"]
     # максимум 3 участника в группе
-    if len(chat.member_ids) > 3:
-        raise HTTPException(status_code=400, detail="Группа может содержать не более 3 участников")
+    if len(chat.member_ids) > 10:
+        raise HTTPException(status_code=400, detail="Группа может содержать не более 10 участников")
     # ============================================================
     print(f"[CREATE] name={chat.name}, member_ids={chat.member_ids}, user={user_id}")
     if len(chat.member_ids) == 2:
@@ -35,11 +35,11 @@ async def create_chat(
     new_chat = await crud.create_chat(db, chat, user_id)
     return new_chat
 
-@router.get("/", response_model=list[schemas.ChatOut])
+@router.get("/", response_model=list[schemas.ChatOut], summary="Получение списка чатов" )
 async def list_chats(current_user=Depends(dependencies.get_current_user), db: AsyncSession = Depends(get_db)):
     return await crud.get_chats_for_user(db, current_user["user_id"])
 
-@router.delete("/{chat_id}")
+@router.delete("/{chat_id}", summary="Удалить чат (только для участников)")
 async def delete_chat(chat_id: int, current_user=Depends(dependencies.get_current_user), db: AsyncSession = Depends(get_db)):
     chat = await db.execute(select(models.Chat).where(models.Chat.id == chat_id))
     chat = chat.scalar_one_or_none()
@@ -54,7 +54,7 @@ async def delete_chat(chat_id: int, current_user=Depends(dependencies.get_curren
     await db.commit()
     return {"message": "Chat deleted"}
 
-@router.get("/{chat_id}/members")
+@router.get("/{chat_id}/members", summary="Получить список участников чата")
 async def get_chat_members(chat_id: int, current_user=Depends(dependencies.get_current_user), db: AsyncSession = Depends(get_db)):
     membership = await db.execute(select(models.chat_members).where(models.chat_members.c.chat_id == chat_id, models.chat_members.c.user_id == current_user["user_id"]))
     if membership.first() is None:

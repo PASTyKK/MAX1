@@ -11,7 +11,7 @@ router = APIRouter(prefix="/messages", tags=["messages"])
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 redis_client = redis.from_url(REDIS_URL)
 
-@router.post("/{chat_id}", response_model=schemas.MessageOut)
+@router.post("/{chat_id}", response_model=schemas.MessageOut, summary="Отправить сообщение в чат")
 async def send_message(
     chat_id: int,
     msg: schemas.MessageCreate,
@@ -39,7 +39,7 @@ async def send_message(
         print(f"Redis publish failed: {e}")
     return new_msg
 
-@router.get("/{chat_id}", response_model=list[schemas.MessageOut])
+@router.get("/{chat_id}", response_model=list[schemas.MessageOut], summary="Получить историю сообщений")
 async def get_messages(
     chat_id: int,
     limit: int = 50,

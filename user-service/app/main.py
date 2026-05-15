@@ -34,7 +34,7 @@ async def init_db():
         await conn.run_sync(Base.metadata.create_all)
 
 # регистрация и логин, а забыли пароль я забыл(
-@app.post("/register", response_model=Token)
+@app.post("/register", response_model=Token, summary="Регистрация пользователя")
 async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
     existing = await db.execute(select(User).where(User.username == user.username))
     if existing.scalar_one_or_none():
@@ -46,7 +46,7 @@ async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
     token = create_access_token({"sub": str(new_user.id), "username": new_user.username})
     return {"access_token": token, "token_type": "bearer"}
 
-@app.post("/login", response_model=Token)
+@app.post("/login", response_model=Token, summary="Авторизация (вход)")
 async def login(user: UserCreate, db: AsyncSession = Depends(get_db)):
     db_user = await db.execute(select(User).where(User.username == user.username))
     db_user = db_user.scalar_one_or_none()
@@ -56,7 +56,7 @@ async def login(user: UserCreate, db: AsyncSession = Depends(get_db)):
     return {"access_token": token, "token_type": "bearer"}
 
 # верификация токена
-@app.get("/auth/verify")
+@app.get("/auth/verify", summary="Проверка JWT-токена (для API Gateway)")
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
     try:
@@ -70,7 +70,7 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
         raise HTTPException(status_code=401, detail="Invalid token")
 
 # Список всех пользователей
-@app.get("/users")
+@app.get("/users", summary="Получить список всех пользователей")
 async def get_all_users(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db)
@@ -85,7 +85,7 @@ async def get_all_users(
     return users
 
 # Поиск пользователей
-@app.get("/users/search")
+@app.get("/users/search", summary="Поиск пользователей по логину")
 async def search_users(
     q: str,
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -110,7 +110,7 @@ async def search_users(
     return users
 
 # Отправить заявку в друзья
-@app.post("/friends/request/{user_id}")
+@app.post("/friends/request/{user_id}", summary="Отправить заявку в друзья")
 async def send_friend_request(
     user_id: int,
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -154,7 +154,7 @@ async def send_friend_request(
     return {"message": "Заявка отправлена"}
 
 # Входящие заявки в друзья
-@app.get("/friends/requests/incoming")
+@app.get("/friends/requests/incoming", summary="Получить входящие заявки")
 async def get_incoming_requests(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db)
@@ -183,7 +183,7 @@ async def get_incoming_requests(
     return output
 
 # Принять заявку
-@app.post("/friends/accept/{request_id}")
+@app.post("/friends/accept/{request_id}", summary="Принять заявку в друзья")
 async def accept_friend_request(
     request_id: int,
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -209,7 +209,7 @@ async def accept_friend_request(
     return {"message": "Друг добавлен"}
 
 # Список друзей
-@app.get("/friends")
+@app.get("/friends", summary="Список друзей текущего пользователя")
 async def get_friends(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: AsyncSession = Depends(get_db)
@@ -231,7 +231,7 @@ async def get_friends(
     return output
 
 # Удаление друга
-@app.delete("/friends/{friend_id}")
+@app.delete("/friends/{friend_id}", summary="Удаление друга")
 async def delete_friend(
     friend_id: int,
     credentials: HTTPAuthorizationCredentials = Depends(security),
