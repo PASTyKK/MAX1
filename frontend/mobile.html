@@ -155,7 +155,7 @@
             border-radius: 50%;
         }
 
-        /* Панель активного чата (изначально видна, но при выборе чата скрываем панель списка) */
+        /* Панель активного чата (изначально видна,но при выборе чата скрываем панель списка) */
         .chat-panel {
             width: 100%;
             display: flex;
@@ -275,7 +275,7 @@
             font-size: 1.2rem;
         }
 
-        /* Модальные окна (адаптированы под экран телефона) */
+        /* Модальные окна (адаптированы под телефон) */
         .modal {
             display: none;
             position: fixed;
@@ -469,7 +469,7 @@
 </head>
 <body>
 <div class="app">
-    <!-- Панель списка чатов -->
+    <!--Панель списка чатов-->
     <div id="chatsPanel" class="chats-panel">
         <div class="chats-header">
             <h1>💬 Мессенджер MAX</h1>
@@ -544,7 +544,7 @@
 </div>
 
 <script>
-    // ========== НАСТРОЙКИ ==========
+    // настройки
     const currentHost = window.location.hostname;
     let USER_API, CHAT_API;
     if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
@@ -596,7 +596,7 @@
         return await response.json();
     }
 
-    // ---------- АВТОРИЗАЦИЯ ----------
+    // авторизация
     async function showAuthScreen() {
         const authHtml = `
             <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#075e54;">
@@ -651,7 +651,7 @@
         } catch(err) { localStorage.removeItem('chat_token'); location.reload(); }
     }
 
-    // ---------- ДРУЗЬЯ ----------
+    //друзья
     async function loadFriends() {
         try {
             const res = await fetch(`${USER_API}/friends`, { headers: { 'Authorization': `Bearer ${accessToken}` } });
@@ -702,7 +702,7 @@
         } catch(e) { showToast('Ошибка', true); }
     }
 
-    // ---------- ЧАТЫ ----------
+    // чаты
     async function deleteChat(chatId) {
         try {
             await apiRequest(`/chats/${chatId}`, 'DELETE');
@@ -859,7 +859,7 @@
         } catch(err) { showToast('Ошибка отправки', true); }
     }
 
-    // ---------- УЧАСТНИКИ ----------
+    // участники
     const membersModal = document.getElementById('membersModal');
     const membersBtn = document.getElementById('membersBtn');
     const closeMembersModalBtn = document.getElementById('closeMembersModalBtn');
@@ -993,7 +993,7 @@
         document.getElementById('searchResultsContainer').innerHTML = '';
     };
 
-    // ---------- ГРУППЫ ----------
+    // группы
     const groupModal = document.getElementById('groupModal');
     const closeGroupModalBtn = document.getElementById('closeGroupModalBtn');
     const confirmGroupBtn = document.getElementById('confirmGroupBtn');
@@ -1029,7 +1029,7 @@
         } catch(err) { showToast(`Ошибка: ${err.message}`, true); }
     };
 
-    // ---------- ОБЩИЕ ----------
+    // общие
     logoutBtn.onclick = () => { localStorage.removeItem('chat_token'); location.reload(); };
     document.getElementById('sendBtn').onclick = sendMessage;
     document.getElementById('messageInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });

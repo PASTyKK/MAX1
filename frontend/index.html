@@ -835,13 +835,16 @@
     }
 
     async function createGroupChat(groupName, memberIds) {
-        if (!groupName.trim()) throw new Error('Введите название');
+        if (!groupName.trim()) throw new Error('Введите название группы');
+        const totalMembers = memberIds.length + 1; // включая текущего пользователя
+        if (totalMembers > 3) {
+            throw new Error('Группа может содержать не более 3 участников (включая вас)');
+        }
         if (memberIds.length < 1) throw new Error('Выберите хотя бы одного друга');
         const allMemberIds = [...new Set([...memberIds, currentUserId])];
         console.log("Sending create group request:", { name: groupName, member_ids: allMemberIds });
         return await apiRequest('/chats/', 'POST', { name: groupName, member_ids: allMemberIds });
     }
-
     async function loadChats() {
         try {
             chats = await apiRequest('/chats/', 'GET');
@@ -925,7 +928,7 @@
         } catch(err) { showToast('Ошибка отправки', true); }
     }
 
-    // ---------- УЧАСТНИКИ ----------
+    // участники
     const membersModal = document.getElementById('membersModal');
     const membersBtn = document.getElementById('membersBtn');
     const closeMembersModalBtn = document.getElementById('closeMembersModalBtn');
@@ -948,7 +951,7 @@
     };
     closeMembersModalBtn.onclick = () => { membersModal.style.display = 'none'; };
 
-    // ---------- МОДАЛКА ДРУЗЕЙ ----------
+    // модальное окно друганы
     const friendsModal = document.getElementById('friendsModal');
     const friendsBtn = document.getElementById('friendsBtn');
     const createGroupBtn = document.getElementById('createGroupBtn');
@@ -1059,7 +1062,7 @@
         document.getElementById('searchResultsContainer').innerHTML = '';
     };
 
-    // ---------- ГРУППЫ ----------
+    // группы
     const groupModal = document.getElementById('groupModal');
     const closeGroupModalBtn = document.getElementById('closeGroupModalBtn');
     const confirmGroupBtn = document.getElementById('confirmGroupBtn');
@@ -1084,20 +1087,26 @@
         const name = document.getElementById('groupName').value.trim();
         if (!name) { showToast('Введите название группы', true); return; }
         const selected = Array.from(document.querySelectorAll('#friendsForGroupList input:checked')).map(cb => parseInt(cb.value));
-        console.log("Selected friends for group:", selected);
         if (!selected.length) { showToast('Выберите хотя бы одного друга', true); return; }
         try {
             const newChat = await createGroupChat(name, selected);
-            console.log("Group created:", newChat);
+            // Проверяем, что создан именно групповой чат
+            const members = await fetchChatMembers(newChat.id);
+            if (!members || members.length !== (selected.length + 1)) {
+                showToast('Ошибка при создании группы (неверное количество участников)', true);
+                return;
+            }
             document.getElementById('groupName').value = '';
             groupModal.style.display = 'none';
-            showToast(`Группа "${name}" создана`);
+            showToast(`Группа "${name}" создана с ${members.length} участниками`);
             await loadChats();
             selectChat(newChat.id);
-        } catch(err) { showToast(`Ошибка: ${err.message}`, true); }
+        } catch(err) {
+            showToast(`Ошибка: ${err.message}`, true);
+        }
     };
 
-    // ---------- ОБЩИЕ ----------
+    // общие
     logoutBtn.onclick = () => { localStorage.removeItem('chat_token'); location.reload(); };
     document.getElementById('sendBtn').onclick = sendMessage;
     document.getElementById('messageInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });

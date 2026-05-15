@@ -11,7 +11,7 @@ from jose import JWTError, jwt
 import os
 from datetime import datetime
 
-SECRET_KEY = "my_super_secret_key_change_me"  # в продакшене берите из переменных окружения
+SECRET_KEY = "my_super_secret_key_change_me"
 ALGORITHM = "HS256"
 security = HTTPBearer()
 
@@ -26,14 +26,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---------- Вспомогательные утилиты (если нужны) ----------
+# Вспомогательные утилиты
 
 @app.on_event("startup")
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
-# ---------- Регистрация и логин ----------
+# регистрация и логин, а забыли пароль я забыл(
 @app.post("/register", response_model=Token)
 async def register(user: UserCreate, db: AsyncSession = Depends(get_db)):
     existing = await db.execute(select(User).where(User.username == user.username))
@@ -55,7 +55,7 @@ async def login(user: UserCreate, db: AsyncSession = Depends(get_db)):
     token = create_access_token({"sub": str(db_user.id), "username": db_user.username})
     return {"access_token": token, "token_type": "bearer"}
 
-# ---------- Верификация токена (для api-gateway) ----------
+# верификация токена
 @app.get("/auth/verify")
 async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
@@ -69,7 +69,7 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-# ---------- Список всех пользователей (для выбора участников) ----------
+# Список всех пользователей
 @app.get("/users")
 async def get_all_users(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -84,7 +84,7 @@ async def get_all_users(
     users = [{"id": row[0], "username": row[1]} for row in result.all()]
     return users
 
-# ---------- Поиск пользователей (для добавления в друзья) ----------
+# Поиск пользователей
 @app.get("/users/search")
 async def search_users(
     q: str,
@@ -109,7 +109,7 @@ async def search_users(
     users = [{"id": row[0], "username": row[1]} for row in result.all()]
     return users
 
-# ---------- Отправить заявку в друзья ----------
+# Отправить заявку в друзья
 @app.post("/friends/request/{user_id}")
 async def send_friend_request(
     user_id: int,
@@ -153,7 +153,7 @@ async def send_friend_request(
     await db.commit()
     return {"message": "Заявка отправлена"}
 
-# ---------- Входящие заявки в друзья ----------
+# Входящие заявки в друзья
 @app.get("/friends/requests/incoming")
 async def get_incoming_requests(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -182,7 +182,7 @@ async def get_incoming_requests(
         })
     return output
 
-# ---------- Принять заявку ----------
+# Принять заявку
 @app.post("/friends/accept/{request_id}")
 async def accept_friend_request(
     request_id: int,
@@ -208,7 +208,7 @@ async def accept_friend_request(
     await db.commit()
     return {"message": "Друг добавлен"}
 
-# ---------- Список друзей ----------
+# Список друзей
 @app.get("/friends")
 async def get_friends(
     credentials: HTTPAuthorizationCredentials = Depends(security),
@@ -230,7 +230,7 @@ async def get_friends(
         output.append({"id": friend_user.id, "username": friend_user.username})
     return output
 
-# ---------- Удаление друга (добавленный эндпоинт) ----------
+# Удаление друга
 @app.delete("/friends/{friend_id}")
 async def delete_friend(
     friend_id: int,

@@ -2,7 +2,7 @@ import httpx
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-USER_SERVICE_URL = "https://localhost:8001"   # обязательно https
+USER_SERVICE_URL = "https://localhost:8001"   # подключение https я молодец, я знаю, 2 часа мучался с сертификатом
 security = HTTPBearer()
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):

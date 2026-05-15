@@ -10,11 +10,11 @@ httpd = http.server.HTTPServer(server_address, http.server.SimpleHTTPRequestHand
 certfile = "localhost+2.pem"
 keyfile = "localhost+2-key.pem"
 
-# Создаём SSL-контекст (современный способ)
+# SSL-контекст, не знаю че это такое но спасибо
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 context.load_cert_chain(certfile, keyfile)
 
-# Применяем контекст к сокету
+# Применяем контекст к сокету, интернет спасибо
 httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
 
 print("HTTPS server running on https://0.0.0.0:8080")

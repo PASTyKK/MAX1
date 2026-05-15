@@ -1,0 +1,113 @@
+version: '3.9'
+
+services:
+  # БД для Api-gateway (чат)
+  chat-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: chat_user
+      POSTGRES_PASSWORD: chat_pass
+      POSTGRES_DB: chat_db
+    volumes:
+      - chat-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chat_user -d chat_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  # БД для USER-SERVICE
+  user-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user_user
+      POSTGRES_PASSWORD: user_pass
+      POSTGRES_DB: users_db
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user_user -d users_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  # REDIS уведомления
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  # микросервис пользователей
+  user-service:
+    build: ./user-service
+    environment:
+      DATABASE_URL: postgresql+asyncpg://user_user:user_pass@user-db/users_db
+      JWT_SECRET: my_super_secret_key_change_me
+    depends_on:
+      user-db:
+        condition: service_healthy
+    networks:
+      - app-network
+    ports:
+      - "8001:8001"
+
+  # основной api-шлюз
+  api-gateway:
+    build: ./api-gateway
+    environment:
+      DATABASE_URL: postgresql+asyncpg://chat_user:chat_pass@chat-db/chat_db
+      USER_SERVICE_URL: http://user-service:8001
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      chat-db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+    networks:
+      - app-network
+    ports:
+      - "8000:8000"
+
+  # микросервис уведомлений
+  notification-service:
+    build: ./notification-service
+    environment:
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - app-network
+    ports:
+      - "8002:8002"
+
+  # фронт задипсиченный
+  frontend:
+    build: ./frontend
+    networks:
+      - app-network
+    ports:
+      - "8080:80"
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  chat-db-data:
+  user-db-data:
+  redis-data:

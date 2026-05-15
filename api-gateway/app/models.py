@@ -5,7 +5,7 @@ from datetime import datetime
 
 Base = declarative_base()
 
-# Ассоциативная таблица для участников группового чата
+# таблица для участников группового чата
 chat_members = Table(
     'chat_members', Base.metadata,
     Column('chat_id', Integer, ForeignKey('chats.id')),

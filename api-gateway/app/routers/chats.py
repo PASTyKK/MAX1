@@ -14,6 +14,10 @@ async def create_chat(
     db: AsyncSession = Depends(get_db)
 ):
     user_id = current_user["user_id"]
+    # максимум 3 участника в группе
+    if len(chat.member_ids) > 3:
+        raise HTTPException(status_code=400, detail="Группа может содержать не более 3 участников")
+    # ============================================================
     print(f"[CREATE] name={chat.name}, member_ids={chat.member_ids}, user={user_id}")
     if len(chat.member_ids) == 2:
         other_id = [uid for uid in chat.member_ids if uid != user_id][0]
@@ -57,7 +61,6 @@ async def get_chat_members(chat_id: int, current_user=Depends(dependencies.get_c
         raise HTTPException(status_code=403, detail="Not a member")
     result = await db.execute(select(models.chat_members.c.user_id).where(models.chat_members.c.chat_id == chat_id))
     member_ids = [row[0] for row in result.all()]
-    # Отключаем проверку SSL для локального тестирования
     async with httpx.AsyncClient(verify=False) as client:
         resp = await client.get(f"{dependencies.USER_SERVICE_URL}/users", headers={"Authorization": f"Bearer {current_user['token']}"})
         if resp.status_code != 200:
